@@ -41,3 +41,23 @@ Abbiamo quattro modelli principali:
 
 - **Spiegazione**: Ogni Spesa inserita all'interno di un mese viene tipizzata assegnandole una Categoria (quella della casa). Avrai le spese idrauliche che puntano alla categoria "Manutenizone", le spese per le luci sotto la categoria "Utenze".
 - **Comportamento alla cancellazione** (`SET NULL`): Qui la logica cambia volontariamente. Se decidi di eliminare la **Categoria di Spesa** "Manutenzione", le singole spese storiche sostenute a Gennaio, Febbraio ecc., NON vengono distrutte. L'importo (es. 150€) resta inalterato per non sballare i conti; semplicemente il database rimuove il "tag" della categoria impostandolo a `null`. Verrà segnalata come "Spesa senza categoria", ma il calcolo matematico non perderà i 150€ usciti.
+
+---
+
+## Nota Tecnica su `belongsTo` e Chiavi Primarie
+
+Una domanda comune è: _"Il `belongsTo` si associa sempre alla chiave primaria della tabella padre?"_
+
+Di default **sì**. Se scrivi `Expense.belongsTo(MonthRecord)`, Sequelize dà per scontato che la `foreignKey` (`monthRecordId`) punterà direttamente alla chiave primaria (`id`) della tabella `MonthRecord`.
+
+Tuttavia, **non è obbligatorio**. Puoi forzare l'associazione a puntare verso una colonna diversa usando la proprietà `targetKey`. L'unica regola in questo caso è che la colonna di destinazione deve possedere un vincolo di unicità (`UNIQUE`).
+
+Ad esempio (codice fittizio):
+
+```typescript
+// Impostiamo che propertyId punti alla colonna "codiceCatastale" invece che alla primary key "id"
+ExpenseCategory.belongsTo(Property, {
+  foreignKey: "propertyId",
+  targetKey: "codiceCatastale",
+});
+```

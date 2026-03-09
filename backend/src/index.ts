@@ -35,10 +35,15 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
+import propertiesRouter from "./routes/properties.js";
+
 // Example route
 app.get("/api/health", (req: Request, res: Response) => {
   res.success({ status: "ok", timestamp: new Date().toISOString() });
 });
+
+// API Routes
+app.use("/api/properties", propertiesRouter);
 
 // Sync DB and Start Server
 sequelize
