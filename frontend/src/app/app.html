@@ -1,0 +1,45 @@
+<main class="main-container">
+  <header>
+    <h1>{{ title() }}</h1>
+    <button (click)="toggleViewMode()">
+      Switch to {{ viewMode() === 'list' ? 'Grid' : 'List' }} View
+    </button>
+  </header>
+
+  <section class="rentals-section">
+    <h2>Available Rentals</h2>
+
+    @if (rentals().length === 0) {
+      <p>No rentals available at the moment.</p>
+    } @else {
+      @switch (viewMode()) {
+        @case ('list') {
+          <ul class="rental-list">
+            @for (item of rentals(); track item.id) {
+              <li>
+                <strong>{{ item.name }}</strong> - ${{ item.price }}/day
+              </li>
+            }
+          </ul>
+        }
+        @case ('grid') {
+          <div class="rental-grid">
+            @for (item of rentals(); track item.id) {
+              <div class="rental-card">
+                <h3>{{ item.name }}</h3>
+                <p>${{ item.price }}/day</p>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+
+    <div class="summary">
+      <p>Total daily price for all items: ${{ totalPrice() }}</p>
+    </div>
+  </section>
+
+  <!-- Router outlet for standard app flow -->
+  <router-outlet></router-outlet>
+</main>
