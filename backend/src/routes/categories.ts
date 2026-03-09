@@ -1,5 +1,10 @@
 import { Router, Request, Response } from "express";
 import { Property, ExpenseCategory } from "../models/index.js";
+import { validate } from "../middleware/validate.js";
+import {
+  createCategorySchema,
+  updateCategorySchema,
+} from "../validators/index.js";
 
 const router = Router();
 
@@ -34,28 +39,10 @@ router.get("/:propId/categories", async (req: Request, res: Response, next) => {
 // POST /api/properties/:propId/categories
 router.post(
   "/:propId/categories",
+  validate(createCategorySchema),
   async (req: Request, res: Response, next) => {
     try {
       const { name, isRecurring, recurringAmount } = req.body;
-      const errors: { field: string; message: string }[] = [];
-
-      if (!name || name.trim() === "") {
-        errors.push({
-          field: "name",
-          message: "Il nome della categoria è obbligatorio",
-        });
-      }
-
-      if (errors.length > 0) {
-        return res.status(422).json({
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Dati non validi",
-            errors,
-          },
-        });
-      }
 
       const newCategory = await ExpenseCategory.create({
         propertyId: req.params.propId as string,
@@ -73,6 +60,7 @@ router.post(
 // PUT /api/properties/:propId/categories/:id
 router.put(
   "/:propId/categories/:id",
+  validate(updateCategorySchema),
   async (req: Request, res: Response, next) => {
     try {
       const category = await ExpenseCategory.findOne({
@@ -84,25 +72,6 @@ router.put(
       }
 
       const { name, isRecurring, recurringAmount } = req.body;
-      const errors: { field: string; message: string }[] = [];
-
-      if (!name || name.trim() === "") {
-        errors.push({
-          field: "name",
-          message: "Il nome della categoria non può essere vuoto",
-        });
-      }
-
-      if (errors.length > 0) {
-        return res.status(422).json({
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Dati non validi",
-            errors,
-          },
-        });
-      }
 
       await category.update({
         name,

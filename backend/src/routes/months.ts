@@ -6,6 +6,13 @@ import {
   ExpenseCategory,
 } from "../models/index.js";
 import { Op } from "sequelize";
+import { validate } from "../middleware/validate.js";
+import {
+  createMonthSchema,
+  updateMonthSchema,
+  createExpenseSchema,
+  updateExpenseSchema,
+} from "../validators/index.js";
 
 const router = Router({ mergeParams: true }); // To access propId from parent router if mounted differently, or we can just use the path
 
@@ -122,75 +129,69 @@ router.get("/:propId/months", async (req: Request, res: Response, next) => {
 });
 
 // POST /api/properties/:propId/months
-router.post("/:propId/months", async (req: Request, res: Response, next) => {
-  try {
-    const { propId } = req.params;
-    const { year, month, agencyNetIncome, notes } = req.body;
+router.post(
+  "/:propId/months",
+  validate(createMonthSchema),
+  async (req: Request, res: Response, next) => {
+    try {
+      const { propId } = req.params;
+      const { year, month, agencyNetIncome, notes } = req.body;
 
-    if (!year || !month || agencyNetIncome === undefined) {
-      return res.status(422).json({
-        success: false,
-        error: {
-          code: "VALIDATION_ERROR",
-          message: "Dati mancanti (year, month, agencyNetIncome)",
-          errors: [],
-        },
+      const existing = await MonthRecord.findOne({
+        where: { propertyId: propId, year, month },
       });
-    }
 
-    const existing = await MonthRecord.findOne({
-      where: { propertyId: propId, year, month },
-    });
-
-    if (existing) {
-      return res.status(409).json({
-        success: false,
-        error: {
-          code: "DUPLICATE_MONTH",
-          message: "Mese già esistente per questa proprietà",
-        },
-      });
-    }
-
-    const newMonth = await MonthRecord.create({
-      propertyId: propId as string,
-      year,
-      month,
-      agencyNetIncome,
-      notes,
-    });
-
-    // Generate recurring expenses
-    const recurringCategories = await ExpenseCategory.findAll({
-      where: { propertyId: propId, isRecurring: true },
-    });
-
-    if (recurringCategories.length > 0) {
-      const expensesToCreate = recurringCategories
-        .filter(
-          (c) => c.recurringAmount !== null && c.recurringAmount !== undefined,
-        )
-        .map((c) => ({
-          monthRecordId: newMonth.id,
-          categoryId: c.id,
-          amount: c.recurringAmount,
-          description: `Spesa ricorrente: ${c.name}`,
-        }));
-
-      if (expensesToCreate.length > 0) {
-        await Expense.bulkCreate(expensesToCreate);
+      if (existing) {
+        return res.status(409).json({
+          success: false,
+          error: {
+            code: "DUPLICATE_MONTH",
+            message: "Mese già esistente per questa proprietà",
+          },
+        });
       }
+
+      const newMonth = await MonthRecord.create({
+        propertyId: propId as string,
+        year,
+        month,
+        agencyNetIncome,
+        notes,
+      });
+
+      // Generate recurring expenses
+      const recurringCategories = await ExpenseCategory.findAll({
+        where: { propertyId: propId, isRecurring: true },
+      });
+
+      if (recurringCategories.length > 0) {
+        const expensesToCreate = recurringCategories
+          .filter(
+            (c) =>
+              c.recurringAmount !== null && c.recurringAmount !== undefined,
+          )
+          .map((c) => ({
+            monthRecordId: newMonth.id,
+            categoryId: c.id,
+            amount: c.recurringAmount,
+            description: `Spesa ricorrente: ${c.name}`,
+          }));
+
+        if (expensesToCreate.length > 0) {
+          await Expense.bulkCreate(expensesToCreate);
+        }
+      }
+
+      const monthWithData = await MonthRecord.findByPk(newMonth.id, {
+        include: [{ model: Expense, include: [ExpenseCategory] }],
+      });
+
+      res.success(monthWithData);
+    } catch (error) {
+      next(error);
     }
-
-    const monthWithData = await MonthRecord.findByPk(newMonth.id, {
-      include: [{ model: Expense, include: [ExpenseCategory] }],
-    });
-
-    res.success(monthWithData);
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // GET /api/properties/:propId/months/:id
 router.get("/:propId/months/:id", async (req: Request, res: Response, next) => {
@@ -209,55 +210,60 @@ router.get("/:propId/months/:id", async (req: Request, res: Response, next) => {
 });
 
 // PUT /api/properties/:propId/months/:id
-router.put("/:propId/months/:id", async (req: Request, res: Response, next) => {
-  try {
-    const month = await MonthRecord.findOne({
-      where: { id: req.params.id, propertyId: req.params.propId },
-    });
-
-    if (!month) return res.error(404, "NOT_FOUND", "Mese non trovato");
-
-    const { year, month: monthNum, agencyNetIncome, notes } = req.body;
-
-    // Check if changing to a month/year that already exists (and is not this one)
-    if (
-      (year && year !== month.year) ||
-      (monthNum && monthNum !== month.month)
-    ) {
-      const existing = await MonthRecord.findOne({
-        where: {
-          propertyId: req.params.propId,
-          year: year || month.year,
-          month: monthNum || month.month,
-        },
+router.put(
+  "/:propId/months/:id",
+  validate(updateMonthSchema),
+  async (req: Request, res: Response, next) => {
+    try {
+      const month = await MonthRecord.findOne({
+        where: { id: req.params.id, propertyId: req.params.propId },
       });
-      if (existing) {
-        return res.status(409).json({
-          success: false,
-          error: {
-            code: "DUPLICATE_MONTH",
-            message: "Mese già esistente per questa proprietà",
+
+      if (!month) return res.error(404, "NOT_FOUND", "Mese non trovato");
+
+      const { year, month: monthNum, agencyNetIncome, notes } = req.body;
+
+      // Check if changing to a month/year that already exists (and is not this one)
+      if (
+        (year && year !== month.year) ||
+        (monthNum && monthNum !== month.month)
+      ) {
+        const existing = await MonthRecord.findOne({
+          where: {
+            propertyId: req.params.propId,
+            year: year || month.year,
+            month: monthNum || month.month,
           },
         });
+        if (existing) {
+          return res.status(409).json({
+            success: false,
+            error: {
+              code: "DUPLICATE_MONTH",
+              message: "Mese già esistente per questa proprietà",
+            },
+          });
+        }
       }
+
+      await month.update({
+        year: year ?? month.year,
+        month: monthNum ?? month.month,
+        agencyNetIncome: agencyNetIncome ?? month.agencyNetIncome,
+        notes: notes ?? month.notes,
+      });
+
+      res.success(month);
+    } catch (error) {
+      next(error);
     }
-
-    await month.update({
-      year: year ?? month.year,
-      month: monthNum ?? month.month,
-      agencyNetIncome: agencyNetIncome ?? month.agencyNetIncome,
-      notes: notes ?? month.notes,
-    });
-
-    res.success(month);
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 // POST /api/properties/:propId/months/:monthId/expenses
 router.post(
   "/:propId/months/:monthId/expenses",
+  validate(createExpenseSchema),
   async (req: Request, res: Response, next) => {
     try {
       const month = await MonthRecord.findOne({
@@ -266,16 +272,6 @@ router.post(
       if (!month) return res.error(404, "NOT_FOUND", "Mese non trovato");
 
       const { categoryId, amount, description } = req.body;
-      if (amount === undefined || amount < 0) {
-        return res.status(422).json({
-          success: false,
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Importo spesa non valido",
-            errors: [],
-          },
-        });
-      }
 
       const expense = await Expense.create({
         monthRecordId: month.id,
@@ -294,6 +290,7 @@ router.post(
 // PUT /api/properties/:propId/months/:monthId/expenses/:id
 router.put(
   "/:propId/months/:monthId/expenses/:id",
+  validate(updateExpenseSchema),
   async (req: Request, res: Response, next) => {
     try {
       const expense = await Expense.findOne({

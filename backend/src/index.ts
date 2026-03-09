@@ -39,6 +39,7 @@ import propertiesRouter from "./routes/properties.js";
 import categoriesRouter from "./routes/categories.js";
 import monthsRouter from "./routes/months.js";
 import dashboardRouter from "./routes/dashboard.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 // Example route
 app.get("/api/health", (req: Request, res: Response) => {
@@ -50,6 +51,9 @@ app.use("/api/properties", propertiesRouter);
 app.use("/api/properties", categoriesRouter);
 app.use("/api/properties", monthsRouter);
 app.use("/api/dashboard", dashboardRouter);
+
+// Global Error Handler
+app.use(errorHandler);
 
 // Sync DB and Start Server
 sequelize
