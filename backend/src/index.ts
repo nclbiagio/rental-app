@@ -36,6 +36,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 import propertiesRouter from "./routes/properties.js";
+import categoriesRouter from "./routes/categories.js";
 
 // Example route
 app.get("/api/health", (req: Request, res: Response) => {
@@ -44,6 +45,7 @@ app.get("/api/health", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/properties", propertiesRouter);
+app.use("/api/properties", categoriesRouter);
 
 // Sync DB and Start Server
 sequelize
