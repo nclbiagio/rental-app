@@ -1,0 +1,23 @@
+{
+  "name": "rental-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nclbiagio/rental-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nclbiagio/rental-app/issues"
+  },
+  "homepage": "https://github.com/nclbiagio/rental-app#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
