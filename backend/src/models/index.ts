@@ -1,8 +1,14 @@
-import sequelize from "../db.js";
-import { Property } from "./Property.js";
-import { ExpenseCategory } from "./ExpenseCategory.js";
-import { MonthRecord } from "./MonthRecord.js";
-import { Expense } from "./Expense.js";
+import { sequelize } from "../db.js";
+import { Property, initProperty } from "./Property.js";
+import { ExpenseCategory, initExpenseCategory } from "./ExpenseCategory.js";
+import { MonthRecord, initMonthRecord } from "./MonthRecord.js";
+import { Expense, initExpense } from "./Expense.js";
+
+// Init models
+initProperty(sequelize);
+initExpenseCategory(sequelize);
+initMonthRecord(sequelize);
+initExpense(sequelize);
 
 // Associations
 Property.hasMany(ExpenseCategory, {

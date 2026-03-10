@@ -11,8 +11,14 @@ if (dialect === "postgres") {
     dialect: "postgres",
     logging: false,
   });
+} else if (process.env.NODE_ENV === "test") {
+  sequelize = new Sequelize({
+    dialect: "sqlite",
+    storage: ":memory:",
+    logging: false,
+  });
 } else {
-  // Default to SQLite in dev
+  // Default to SQLite file in dev
   sequelize = new Sequelize({
     dialect: "sqlite",
     storage: "./database.sqlite",
@@ -20,4 +26,4 @@ if (dialect === "postgres") {
   });
 }
 
-export default sequelize;
+export { sequelize };

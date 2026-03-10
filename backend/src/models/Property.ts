@@ -1,5 +1,4 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../db.js";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
 interface PropertyAttributes {
   id?: string;
@@ -14,46 +13,48 @@ export class Property
   extends Model<PropertyAttributes>
   implements PropertyAttributes
 {
-  public id!: string;
-  public name!: string;
-  public address!: string;
-  public notes!: string;
-  public startDate!: string;
-  public archived!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  declare id: string;
+  declare name: string;
+  declare address: string;
+  declare notes: string;
+  declare startDate: string;
+  declare archived: boolean;
+  declare readonly createdAt: Date;
+  declare readonly updatedAt: Date;
 }
 
-Property.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
+export const initProperty = (sequelize: Sequelize) => {
+  Property.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
+      },
+      name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
+      },
+      address: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
+      notes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+      startDate: {
+        type: DataTypes.DATEONLY,
+        allowNull: false,
+      },
+      archived: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
+    {
+      sequelize,
+      modelName: "Property",
     },
-    address: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    notes: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    startDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: false,
-    },
-    archived: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
-  },
-  {
-    sequelize,
-    modelName: "Property",
-  },
-);
+  );
+};

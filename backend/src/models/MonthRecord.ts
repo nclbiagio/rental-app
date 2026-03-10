@@ -1,5 +1,4 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../db.js";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
 interface MonthRecordAttributes {
   id?: string;
@@ -14,55 +13,57 @@ export class MonthRecord
   extends Model<MonthRecordAttributes>
   implements MonthRecordAttributes
 {
-  public id!: string;
-  public propertyId!: string;
-  public year!: number;
-  public month!: number;
-  public agencyNetIncome!: number;
-  public notes!: string;
+  declare id: string;
+  declare propertyId: string;
+  declare year: number;
+  declare month: number;
+  declare agencyNetIncome: number;
+  declare notes: string;
 }
 
-MonthRecord.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-    },
-    propertyId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: "Properties",
-        key: "id",
+export const initMonthRecord = (sequelize: Sequelize) => {
+  MonthRecord.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
       },
-      onDelete: "CASCADE",
-    },
-    year: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    month: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    agencyNetIncome: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-    },
-    notes: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    modelName: "MonthRecord",
-    indexes: [
-      {
-        unique: true,
-        fields: ["propertyId", "year", "month"],
+      propertyId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "Properties",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
-    ],
-  },
-);
+      year: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      month: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      agencyNetIncome: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+      },
+      notes: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+      },
+    },
+    {
+      sequelize,
+      modelName: "MonthRecord",
+      indexes: [
+        {
+          unique: true,
+          fields: ["propertyId", "year", "month"],
+        },
+      ],
+    },
+  );
+};

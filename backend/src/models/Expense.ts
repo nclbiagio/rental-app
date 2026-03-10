@@ -1,5 +1,4 @@
-import { DataTypes, Model } from "sequelize";
-import sequelize from "../db.js";
+import { DataTypes, Model, Sequelize } from "sequelize";
 
 interface ExpenseAttributes {
   id?: string;
@@ -13,52 +12,54 @@ export class Expense
   extends Model<ExpenseAttributes>
   implements ExpenseAttributes
 {
-  public id!: string;
-  public monthRecordId!: string;
-  public categoryId!: string;
-  public amount!: number;
-  public description!: string;
+  declare id: string;
+  declare monthRecordId: string;
+  declare categoryId: string;
+  declare amount: number;
+  declare description: string;
 }
 
-Expense.init(
-  {
-    id: {
-      type: DataTypes.UUID,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-    },
-    monthRecordId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      references: {
-        model: "MonthRecords",
-        key: "id",
+export const initExpense = (sequelize: Sequelize) => {
+  Expense.init(
+    {
+      id: {
+        type: DataTypes.UUID,
+        primaryKey: true,
+        defaultValue: DataTypes.UUIDV4,
       },
-      onDelete: "CASCADE",
-    },
-    categoryId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-      references: {
-        model: "ExpenseCategories",
-        key: "id",
+      monthRecordId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+          model: "MonthRecords",
+          key: "id",
+        },
+        onDelete: "CASCADE",
       },
-      onDelete: "SET NULL",
-    },
-    amount: {
-      type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      validate: {
-        min: 0,
+      categoryId: {
+        type: DataTypes.UUID,
+        allowNull: true,
+        references: {
+          model: "ExpenseCategories",
+          key: "id",
+        },
+        onDelete: "SET NULL",
+      },
+      amount: {
+        type: DataTypes.DECIMAL(10, 2),
+        allowNull: false,
+        validate: {
+          min: 0,
+        },
+      },
+      description: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
       },
     },
-    description: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
+    {
+      sequelize,
+      modelName: "Expense",
     },
-  },
-  {
-    sequelize,
-    modelName: "Expense",
-  },
-);
+  );
+};
