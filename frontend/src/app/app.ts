@@ -1,38 +1,51 @@
-import { Component, signal, computed } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+
+// Angular Material
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
+
+// Il nostro servizio e l'environment
+import { DashboardFacade } from './features/dashboard/dashboard.service';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.html',
-  styleUrls: ['./app.css'],
   standalone: true,
-  imports: [RouterOutlet],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    MatBadgeModule,
+    MatDividerModule,
+  ],
+  templateUrl: './app.html',
+  styleUrls: ['./app.css'], // Opzionale, per stili extra
 })
 export class AppComponent {
-  title = signal('rental-app');
-  rentals = signal([
-    { id: 1, name: 'Mountain Bike', price: 15 },
-    { id: 2, name: 'Surfboard', price: 25 },
-    { id: 3, name: 'Tent', price: 10 },
-  ]);
+  public facade = inject(DashboardFacade);
+  private breakpointObserver = inject(BreakpointObserver);
 
-  // Experimental Signal Forms syntax as requested
-  // Note: Since this is v21 preview, we shape it as requested.
-  // userForm = form({
-  //   name: signal(''),
-  //   email: signal('')
-  // });
+  // Leggiamo la versione dall'environment (es. "1.0.0")
+  public appVersion = environment.version;
 
-  viewMode = signal<'list' | 'grid'>('list');
-
-  totalPrice = computed(() => this.rentals().reduce((acc, item) => acc + item.price, 0));
-
-  toggleViewMode() {
-    this.viewMode.update((mode) => (mode === 'list' ? 'grid' : 'list'));
-  }
-
-  // Example of appending items via state management
-  addRental(name: string, price: number) {
-    this.rentals.update((items) => [...items, { id: Date.now(), name, price }]);
-  }
+  // Trasformiamo l'osservabile del resize della finestra in un Signal reattivo.
+  // Sarà true se siamo su schermi piccoli (Handset), false su desktop.
+  public isMobile = toSignal(
+    this.breakpointObserver.observe(Breakpoints.Handset).pipe(map((result) => result.matches)),
+    { initialValue: false },
+  );
 }

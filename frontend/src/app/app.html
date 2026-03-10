@@ -1,45 +1,66 @@
-<main class="main-container">
-  <header>
-    <h1>{{ title() }}</h1>
-    <button (click)="toggleViewMode()">
-      Switch to {{ viewMode() === 'list' ? 'Grid' : 'List' }} View
-    </button>
-  </header>
-
-  <section class="rentals-section">
-    <h2>Available Rentals</h2>
-
-    @if (rentals().length === 0) {
-      <p>No rentals available at the moment.</p>
-    } @else {
-      @switch (viewMode()) {
-        @case ('list') {
-          <ul class="rental-list">
-            @for (item of rentals(); track item.id) {
-              <li>
-                <strong>{{ item.name }}</strong> - ${{ item.price }}/day
-              </li>
-            }
-          </ul>
-        }
-        @case ('grid') {
-          <div class="rental-grid">
-            @for (item of rentals(); track item.id) {
-              <div class="rental-card">
-                <h3>{{ item.name }}</h3>
-                <p>${{ item.price }}/day</p>
-              </div>
-            }
-          </div>
-        }
-      }
-    }
-
-    <div class="summary">
-      <p>Total daily price for all items: ${{ totalPrice() }}</p>
+<mat-sidenav-container class="app-shell-container" autosize>
+  <mat-sidenav
+    #sidenav
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    class="app-sidenav"
+  >
+    <div class="sidenav-header">
+      <mat-icon color="primary">real_estate_agent</mat-icon>
+      <h2>Il Mio Portafoglio</h2>
     </div>
-  </section>
 
-  <!-- Router outlet for standard app flow -->
-  <router-outlet></router-outlet>
-</main>
+    <mat-nav-list>
+      <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+
+      <mat-divider></mat-divider>
+
+      <div mat-subheader>I Miei Immobili</div>
+
+      @for (prop of facade.properties(); track prop.propertyId) {
+        <a
+          mat-list-item
+          [routerLink]="['/property', prop.propertyId]"
+          routerLinkActive="active-link"
+          (click)="isMobile() ? sidenav.close() : null"
+        >
+          <mat-icon matListItemIcon>home</mat-icon>
+          <span matListItemTitle>{{ prop.propertyName }}</span>
+
+          <span matListItemMeta>
+            <span
+              matBadge="{{ prop.missingMonths.length }}"
+              matBadgeColor="warn"
+              [matBadgeHidden]="prop.missingMonths.length === 0"
+              matBadgeSize="small"
+            >
+            </span>
+          </span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <mat-toolbar color="primary" class="app-toolbar">
+      @if (isMobile()) {
+        <button mat-icon-button (click)="sidenav.toggle()" aria-label="Apri menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
+      <span>Real Estate Manager</span>
+
+      <span class="toolbar-spacer" style="flex: 1 1 auto"></span>
+
+      <span class="app-version">v{{ appVersion }}</span>
+    </mat-toolbar>
+
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

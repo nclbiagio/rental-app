@@ -1,0 +1,41 @@
+/* Assicurati che il contenitore occupi il 100% dell'altezza della finestra */
+.app-shell-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.app-sidenav {
+  width: 280px;
+}
+
+.sidenav-header {
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #f5f5f5;
+
+  h2 {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+}
+
+.main-content {
+  /* Assicura che ci sia respiro attorno alle pagine caricate dal router */
+  height: calc(100% - 64px); /* Sottrae l'altezza della mat-toolbar */
+  overflow-y: auto;
+}
+
+/* Stile per il link attivo nel menu */
+.active-link {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: #3f51b5; /* Usa il tuo colore primario qui */
+
+  mat-icon {
+    color: #3f51b5;
+  }
+}
