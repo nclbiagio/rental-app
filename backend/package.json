@@ -9,7 +9,9 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "test": "cross-env NODE_ENV=test DB_DIALECT=sqlite vitest run",
-    "test:watch": "cross-env NODE_ENV=test DB_DIALECT=sqlite vitest"
+    "test:watch": "cross-env NODE_ENV=test DB_DIALECT=sqlite vitest",
+    "lint": "eslint \"src/**/*.{js,ts}\"",
+    "lint:fix": "eslint \"src/**/*.{js,ts}\" --fix"
   },
   "keywords": [],
   "author": "",
@@ -25,15 +27,18 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.5",
     "@types/supertest": "^7.2.0",
     "cross-env": "^10.1.0",
+    "eslint": "^10.0.3",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.0",
     "vitest": "^4.0.18"
   }
 }

@@ -19,6 +19,7 @@ app.use(express.json());
 
 // Add custom properties to Express Response
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Response {
       success: (data: any) => void;
