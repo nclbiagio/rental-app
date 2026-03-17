@@ -1,4 +1,6 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
+import { DashboardFacade } from './features/dashboard/dashboard.service';
 
 export const routes: Routes = [
   {
@@ -10,5 +12,19 @@ export const routes: Routes = [
     path: 'dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+    resolve: {
+      refreshData: () => {
+        const facade = inject(DashboardFacade);
+        if (!!facade.dashboardResource.value()) {
+          facade.refreshData();
+        }
+        return true;
+      }
+    }
+  },
+  {
+    path: 'property/new',
+    loadComponent: () => import('./features/properties/components/property-create.component')
+      .then(m => m.PropertyCreateComponent)
   },
 ];

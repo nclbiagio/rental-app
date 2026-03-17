@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-
+import { RouterLink } from '@angular/router';
 import { DashboardFacade } from './dashboard.service';
 
 @Component({
@@ -20,6 +20,7 @@ import { DashboardFacade } from './dashboard.service';
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
+    RouterLink
   ],
   template: `
     <div class="dashboard-container">
@@ -35,14 +36,23 @@ import { DashboardFacade } from './dashboard.service';
             <mat-icon color="primary" class="empty-icon">domain_disabled</mat-icon>
             <h2>Nessun immobile trovato</h2>
             <p>Non hai ancora inserito nessuna proprietà nel tuo portafoglio.</p>
-            <button mat-flat-button color="primary">Aggiungi Immobile</button>
+            <button mat-flat-button color="primary" routerLink="/property/new">
+      Aggiungi Immobile
+    </button>
           </div>
 
         } @else {
           <mat-card class="total-card">
-            <mat-card-header>
-              <mat-card-title>Totale Portafoglio (YTD)</mat-card-title>
-              <mat-card-subtitle>Somma netta accantonata da inizio anno</mat-card-subtitle>
+            <mat-card-header style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div>
+                <mat-card-title>Totale Portafoglio (YTD)</mat-card-title>
+                <mat-card-subtitle>Somma netta accantonata da inizio anno</mat-card-subtitle>
+              </div>
+              
+              <button mat-flat-button color="primary" routerLink="/property/new">
+                <mat-icon>add</mat-icon>
+                Nuovo
+              </button>
             </mat-card-header>
             <mat-card-content>
               <div class="total-value">

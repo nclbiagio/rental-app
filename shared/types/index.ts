@@ -1,5 +1,5 @@
 export * from "./dashboard.contracts";
-
+export * from './properties.contracts';
 /**
  * Struttura standard di tutte le risposte del nostro Backend
  */
