@@ -1,5 +1,8 @@
 export * from "./dashboard.contracts";
-export * from './properties.contracts';
+export * from "./properties.contracts";
+export * from "./months.contracts";
+export * from "./categories.contracts";
+
 /**
  * Struttura standard di tutte le risposte del nostro Backend
  */

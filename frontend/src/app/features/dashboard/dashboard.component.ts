@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, JsonPipe } from '@angular/common';
 
 // Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
@@ -20,7 +20,7 @@ import { DashboardFacade } from './dashboard.service';
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
-    RouterLink
+    RouterLink,
   ],
   template: `
     <div class="dashboard-container">
@@ -29,7 +29,6 @@ import { DashboardFacade } from './dashboard.service';
           <mat-spinner diameter="50"></mat-spinner>
           <p>Caricamento portafoglio...</p>
         </div>
-
       } @else {
         @if (facade.properties().length === 0) {
           <div class="empty-state">
@@ -37,18 +36,19 @@ import { DashboardFacade } from './dashboard.service';
             <h2>Nessun immobile trovato</h2>
             <p>Non hai ancora inserito nessuna proprietà nel tuo portafoglio.</p>
             <button mat-flat-button color="primary" routerLink="/property/new">
-      Aggiungi Immobile
-    </button>
+              Aggiungi Immobile
+            </button>
           </div>
-
         } @else {
           <mat-card class="total-card">
-            <mat-card-header style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <mat-card-header
+              style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
+            >
               <div>
                 <mat-card-title>Totale Portafoglio (YTD)</mat-card-title>
                 <mat-card-subtitle>Somma netta accantonata da inizio anno</mat-card-subtitle>
               </div>
-              
+
               <button mat-flat-button color="primary" routerLink="/property/new">
                 <mat-icon>add</mat-icon>
                 Nuovo
@@ -105,7 +105,13 @@ import { DashboardFacade } from './dashboard.service';
                       <mat-icon matChipAvatar>warning</mat-icon>
                       {{ prop.missingMonths.length }} mesi da compilare
                     </mat-chip>
-                    <button mat-button color="accent">Compila ora</button>
+                    <button
+                      mat-button
+                      color="accent"
+                      [routerLink]="['/properties', prop.propertyId]"
+                    >
+                      Compila ora
+                    </button>
                   } @else {
                     <mat-chip class="success-chip">
                       <mat-icon matChipAvatar>check_circle</mat-icon>

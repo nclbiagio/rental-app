@@ -19,12 +19,19 @@ export const routes: Routes = [
           facade.refreshData();
         }
         return true;
-      }
-    }
+      },
+    },
   },
   {
     path: 'property/new',
-    loadComponent: () => import('./features/properties/components/property-create.component')
-      .then(m => m.PropertyCreateComponent)
+    loadComponent: () =>
+      import('./features/properties/components/property-create.component').then(
+        (m) => m.PropertyCreateComponent,
+      ),
+  },
+  {
+    path: 'properties/:propId/months/:monthId',
+    loadComponent: () =>
+      import('./features/months/month-form.component').then((m) => m.MonthFormComponent),
   },
 ];
