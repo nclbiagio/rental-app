@@ -23,7 +23,7 @@
       @for (prop of facade.properties(); track prop.propertyId) {
         <a
           mat-list-item
-          [routerLink]="['/property', prop.propertyId]"
+          [routerLink]="['/properties', prop.propertyId]"
           routerLinkActive="active-link"
           (click)="isMobile() ? sidenav.close() : null"
         >

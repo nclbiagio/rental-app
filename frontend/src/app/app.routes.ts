@@ -25,8 +25,15 @@ export const routes: Routes = [
   {
     path: 'property/new',
     loadComponent: () =>
-      import('./features/properties/components/property-create.component').then(
+      import('./features/properties/property-create.component').then(
         (m) => m.PropertyCreateComponent,
+      ),
+  },
+  {
+    path: 'properties/:propId',
+    loadComponent: () =>
+      import('./features/properties/property-detail.component').then(
+        (m) => m.PropertyDetailComponent,
       ),
   },
   {

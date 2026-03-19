@@ -12,7 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { PropertiesFacade } from '../properties.service';
+import { PropertiesFacade } from './properties.service';
 
 @Component({
   selector: 'app-property-create',
@@ -24,7 +24,7 @@ import { PropertiesFacade } from '../properties.service';
     MatButtonModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatIconModule
+    MatIconModule,
   ],
   template: `
     <div class="form-wrapper">
@@ -34,11 +34,10 @@ import { PropertiesFacade } from '../properties.service';
       </header>
 
       <form class="property-form" (submit)="onSubmit($event)">
-        
         <mat-form-field appearance="outline">
           <mat-label>Nome Immobile *</mat-label>
-          <input matInput type="text" [formField]="propertyForm.name">
-          
+          <input matInput type="text" [formField]="propertyForm.name" />
+
           @if (propertyForm.name().errors().length && propertyForm.name().touched()) {
             <mat-error>{{ propertyForm.name().errors()[0].message }}</mat-error>
           }
@@ -46,8 +45,8 @@ import { PropertiesFacade } from '../properties.service';
 
         <mat-form-field appearance="outline">
           <mat-label>Indirizzo (Opzionale)</mat-label>
-          <input matInput type="text" [formField]="propertyForm.address">
-          
+          <input matInput type="text" [formField]="propertyForm.address" />
+
           @if (propertyForm.address().errors().length && propertyForm.address().touched()) {
             <mat-error>{{ propertyForm.address().errors()[0].message }}</mat-error>
           }
@@ -55,15 +54,15 @@ import { PropertiesFacade } from '../properties.service';
 
         <mat-form-field appearance="outline">
           <mat-label>Data di inizio rendicontazione *</mat-label>
-          <input 
-            matInput 
-            [matDatepicker]="picker" 
+          <input
+            matInput
+            [matDatepicker]="picker"
             [formField]="propertyForm.startDate"
             (dateChange)="onDateChange($event.value)"
-          >
+          />
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
-          
+
           @if (propertyForm.startDate().errors().length && propertyForm.startDate().touched()) {
             <mat-error>{{ propertyForm.startDate().errors()[0].message }}</mat-error>
           }
@@ -76,29 +75,55 @@ import { PropertiesFacade } from '../properties.service';
 
         <div class="form-actions">
           <button mat-button type="button" (click)="goBack()">Annulla</button>
-          
-          <button 
-            mat-flat-button 
-            color="primary" 
-            type="submit" 
-            [disabled]="propertyForm().invalid()">
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="submit"
+            [disabled]="propertyForm().invalid()"
+          >
             Salva Immobile
           </button>
         </div>
       </form>
     </div>
   `,
-  styles: [`
-    .form-wrapper { max-width: 600px; margin: 32px auto; padding: 0 16px; }
-    .page-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
-    .page-header h1 { margin: 0; font-size: 24px; color: #2c3e50; }
-    .property-form { display: flex; flex-direction: column; gap: 16px; }
-    mat-form-field { width: 100%; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 16px; margin-top: 16px; }
-  `]
+  styles: [
+    `
+      .form-wrapper {
+        max-width: 600px;
+        margin: 32px auto;
+        padding: 0 16px;
+      }
+      .page-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .page-header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #2c3e50;
+      }
+      .property-form {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      mat-form-field {
+        width: 100%;
+      }
+      .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 16px;
+        margin-top: 16px;
+      }
+    `,
+  ],
 })
 export class PropertyCreateComponent {
-
   private facade = inject(PropertiesFacade);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -107,12 +132,11 @@ export class PropertyCreateComponent {
     name: '',
     address: '',
     notes: '',
-    startDate: ''
+    startDate: '',
   });
 
   // 🎯 IL NUOVO MODO: Passiamo una funzione schema come secondo argomento!
   public propertyForm = form(this.initialModel, (path) => {
-
     // Validatori nativi configurabili con messaggi custom
     required(path.name, { message: 'Il nome è obbligatorio' });
     maxLength(path.name, 100, { message: 'Il nome è troppo lungo (max 100 char)' });
@@ -130,15 +154,14 @@ export class PropertyCreateComponent {
       // Altrimenti ritorniamo l'oggetto di errore
       return { kind: 'invalidDate', message: 'Data di inizio non valida' };
     });
-
   });
 
   public onDateChange(date: Date | null): void {
     if (date) {
       const isoDate = date.toISOString().split('T')[0];
-      this.initialModel.update(m => ({ ...m, startDate: isoDate }));
+      this.initialModel.update((m) => ({ ...m, startDate: isoDate }));
     } else {
-      this.initialModel.update(m => ({ ...m, startDate: '' }));
+      this.initialModel.update((m) => ({ ...m, startDate: '' }));
     }
   }
 
@@ -148,16 +171,14 @@ export class PropertyCreateComponent {
     // Per risolvere l'errore che avevi prima: il form root va chiamato come una funzione
     // per leggere il suo stato globale ( propertyForm().valid() )
     if (this.propertyForm().valid()) {
-
       try {
-
         const payload = this.initialModel();
         await this.facade.createProperty(payload);
 
         this.snackBar.open('Immobile salvato con successo!', 'Chiudi', {
           duration: 3000, // Scompare da solo dopo 3 secondi
           horizontalPosition: 'center',
-          verticalPosition: 'bottom'
+          verticalPosition: 'bottom',
         });
 
         this.router.navigate(['/dashboard']);

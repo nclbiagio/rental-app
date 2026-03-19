@@ -387,6 +387,7 @@ router.get("/:propId/stats", async (req: Request, res: Response, next) => {
       totalNet += net;
 
       monthlyTrend.push({
+        id: plain.id,
         year: plain.year,
         month: plain.month,
         agencyNetIncome: income,
