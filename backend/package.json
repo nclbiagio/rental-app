@@ -8,8 +8,8 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "test": "cross-env NODE_ENV=test DB_DIALECT=sqlite vitest run",
-    "test:watch": "cross-env NODE_ENV=test DB_DIALECT=sqlite vitest",
+    "test": "cross-env NODE_ENV=vitest DB_DIALECT=sqlite vitest run",
+    "test:watch": "cross-env NODE_ENV=vitest DB_DIALECT=sqlite vitest",
     "lint": "eslint \"src/**/*.{js,ts}\"",
     "lint:fix": "eslint \"src/**/*.{js,ts}\" --fix"
   },
