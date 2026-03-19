@@ -13,13 +13,13 @@ import { PropertiesFacade } from './properties.service';
 import { PropertySummaryTabComponent } from './components/property-summary-tab.component';
 import { PropertyHistoryTabComponent } from './components/property-history-tab.component';
 import { PropertyExpensesTabComponent } from './components/property-expenses-tab.component';
+import { PropertyCategoriesTabComponent } from './components/property-categories-tab.component';
 
 @Component({
   selector: 'app-property-detail',
   standalone: true,
   imports: [
     RouterLink,
-    CurrencyPipe,
     MatTabsModule,
     MatCardModule,
     MatButtonModule,
@@ -28,6 +28,7 @@ import { PropertyExpensesTabComponent } from './components/property-expenses-tab
     PropertySummaryTabComponent,
     PropertyHistoryTabComponent,
     PropertyExpensesTabComponent,
+    PropertyCategoriesTabComponent,
   ],
   template: `
     <div class="page-container">
@@ -77,6 +78,12 @@ import { PropertyExpensesTabComponent } from './components/property-expenses-tab
             <div class="tab-content">
               <app-property-expenses-tab [expenses]="stats.expensesByCategory">
               </app-property-expenses-tab>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Categorie & Spese Fisse">
+            <div class="tab-content">
+              <app-property-categories-tab [propId]="propId()"></app-property-categories-tab>
             </div>
           </mat-tab>
         </mat-tab-group>

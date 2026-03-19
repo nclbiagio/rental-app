@@ -16,7 +16,8 @@
     "module": "preserve",
     "resolveJsonModule": true,
     "paths": {
-      "@app/shared/*": ["../shared/*"]
+      "@app/shared/*": ["../shared/*"],
+      "@app/features/*": ["./features/*"]
     }
   },
   "angularCompilerOptions": {

@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, effect, inject, input, output } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
@@ -62,6 +62,12 @@ export class MonthExpensesComponent {
   // 📤 Eventi in uscita (verso il componente Padre)
   public add = output<ExpensePayload>();
   public delete = output<string>(); // Invia l'ID da cancellare
+
+  constructor() {
+    effect(() => {
+      //console.log(this.expenses());
+    });
+  }
 
   public openAddDialog() {
     const dialogRef = this.dialog.open(ExpenseDialogComponent, {

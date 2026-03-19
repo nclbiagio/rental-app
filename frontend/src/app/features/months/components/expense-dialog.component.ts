@@ -7,6 +7,8 @@ import { MatSelectModule } from '@angular/material/select';
 // 🚀 Importa le tue utility del signal form
 import { form, required, min, FormField } from '@angular/forms/signals';
 import type { ExpenseCategory, ExpensePayload } from '@app/shared/types';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-expense-dialog',
@@ -18,6 +20,7 @@ import type { ExpenseCategory, ExpensePayload } from '@app/shared/types';
     MatInputModule,
     MatSelectModule,
     FormField,
+    MatSnackBarModule,
   ],
   template: `
     <h2 mat-dialog-title>Aggiungi Spesa Extra</h2>
@@ -26,7 +29,10 @@ import type { ExpenseCategory, ExpensePayload } from '@app/shared/types';
       <form class="expense-form" (submit)="onSubmit()">
         <mat-form-field appearance="outline">
           <mat-label>Categoria *</mat-label>
-          <mat-select [formField]="expenseForm.categoryId">
+          <mat-select
+            [formField]="expenseForm.categoryId"
+            (selectionChange)="onCategorySelected($event.value)"
+          >
             @for (cat of categories; track cat.id) {
               <mat-option [value]="cat.id">{{ cat.name }}</mat-option>
             }
@@ -73,9 +79,12 @@ import type { ExpenseCategory, ExpensePayload } from '@app/shared/types';
 })
 export class ExpenseDialogComponent {
   private dialogRef = inject(MatDialogRef<ExpenseDialogComponent>);
+  private snackBar = inject(MatSnackBar);
 
   // Riceviamo le categorie dal componente che apre il dialog
   public categories: ExpenseCategory[] = inject(MAT_DIALOG_DATA).categories;
+
+  expenseCategoryName = signal<string>('');
 
   public initialModel = signal<ExpensePayload>({
     categoryId: null,
@@ -94,9 +103,23 @@ export class ExpenseDialogComponent {
   }
 
   public onSubmit() {
+    if (!this.expenseCategoryName() || this.expenseCategoryName().trim() === '') {
+      this.snackBar.open('Errore tecnico: Il nome della spesa è mancante.', 'OK', {
+        duration: 5000,
+        panelClass: ['warn-snackbar'],
+      });
+      return; // Blocchiamo l'invio
+    }
     if (this.expenseForm().valid()) {
       // Chiudiamo il dialog restituendo i dati compilati!
       this.dialogRef.close(this.initialModel());
+    }
+  }
+
+  public onCategorySelected(categoryId: string) {
+    const category = this.categories.find((c) => c.id === categoryId);
+    if (category) {
+      this.expenseCategoryName.set(category.name);
     }
   }
 }

@@ -402,10 +402,8 @@ export class MonthFormComponent {
     try {
       // 1. Chiamata POST al backend
       const newExpense = await this.facade.addExpense(this.propId(), monthId, payload);
-
-      // 2. Aggiornamento Reattivo: Aggiungiamo la nuova spesa all'array esistente!
-      // Usiamo .update() per non dover fare un'altra GET al server
-      this.expenses.update((currentExpenses) => [...currentExpenses, newExpense]);
+      console.log(newExpense);
+      this.loadExistingMonth(this.propId(), monthId);
 
       this.snackBar.open('Spesa aggiunta con successo', 'Chiudi', { duration: 3000 });
     } catch (error) {
