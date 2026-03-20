@@ -7,6 +7,7 @@ import categoriesRouter from "./routes/categories.js";
 import monthsRouter from "./routes/months.js";
 import dashboardRouter from "./routes/dashboard.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import devRouter from "./routes/dev.js";
 
 dotenv.config();
 
@@ -48,6 +49,10 @@ app.use("/api/properties", propertiesRouter);
 app.use("/api/properties", categoriesRouter);
 app.use("/api/properties", monthsRouter);
 app.use("/api/dashboard", dashboardRouter);
+
+if (process.env.NODE_ENV !== "production") {
+  app.use("/api/dev", devRouter);
+}
 
 // Global Error Handler
 app.use(errorHandler);

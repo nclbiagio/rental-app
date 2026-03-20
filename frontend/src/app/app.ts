@@ -42,6 +42,8 @@ export class AppComponent {
   // Leggiamo la versione dall'environment (es. "1.0.0")
   public appVersion = environment.version;
 
+  public isDevMode = !environment.production;
+
   // Trasformiamo l'osservabile del resize della finestra in un Signal reattivo.
   // Sarà true se siamo su schermi piccoli (Handset), false su desktop.
   public isMobile = toSignal(

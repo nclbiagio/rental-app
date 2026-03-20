@@ -41,6 +41,14 @@
           </span>
         </a>
       }
+
+      @if (isDevMode) {
+        <mat-divider></mat-divider>
+        <a mat-list-item routerLink="/dev-tools" routerLinkActive="active-link">
+          <mat-icon matListItemIcon>bug_report</mat-icon>
+          <span matListItemTitle>Dev Tools</span>
+        </a>
+      }
     </mat-nav-list>
   </mat-sidenav>
 

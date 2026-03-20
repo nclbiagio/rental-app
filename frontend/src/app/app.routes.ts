@@ -42,4 +42,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/months/month-form.component').then((m) => m.MonthFormComponent),
   },
+  {
+    path: 'dev-tools',
+    loadComponent: () =>
+      import('./features/dev-tools/dev-db-manager.component').then((m) => m.DevDbManagerComponent),
+  },
 ];

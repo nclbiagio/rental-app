@@ -146,3 +146,5 @@ playwright/.cache/
 backend/database.sqlite
 backend/dev-database.sqlite
 backend/prod-database.sqlite
+
+backend/db-backups
