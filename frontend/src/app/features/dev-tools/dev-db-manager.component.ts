@@ -9,6 +9,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router'; // 🚀 Importiamo il Router
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-dev-db-manager',
@@ -108,6 +111,8 @@ export class DevDbManagerComponent {
   private http = inject(HttpClient);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private dialog = inject(MatDialog);
+
   private baseUrl = `${environment.apiUrl}/dev/db`;
 
   public backups = signal<string[]>([]);
@@ -135,15 +140,23 @@ export class DevDbManagerComponent {
     });
   }
 
-  restoreBackup() {
+  async restoreBackup() {
     const filename = this.selectedFile();
-    if (
-      !filename ||
-      !confirm(
-        `Sei sicuro di voler sovrascrivere il DB attuale con ${filename}? Perderai i dati non salvati nel backup.`,
-      )
-    )
-      return;
+    if (!filename) return;
+
+    // 🚀 1. Apriamo la modale di Material
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        message: `Sei sicuro di voler sovrascrivere il DB attuale con <strong>${filename}</strong>?<br><br>Perderai i dati non salvati nel backup.`,
+      },
+    });
+
+    // 🚀 2. Aspettiamo la scelta dell'utente
+    const confirmed = await firstValueFrom(dialogRef.afterClosed());
+
+    // Se ha cliccato Annulla, ci fermiamo qui
+    if (!confirmed) return;
 
     this.isRestoring.set(true);
 

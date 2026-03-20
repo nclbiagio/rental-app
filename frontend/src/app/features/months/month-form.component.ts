@@ -29,6 +29,10 @@ import { MonthExpensesComponent } from './components/month-expenses.component';
 import { CategoriesFacade } from '../categories/categories.service';
 import { DashboardFacade } from '../dashboard/dashboard.service';
 
+import { MatDialog } from '@angular/material/dialog';
+import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
+
 export const MY_NATIVE_FORMATS = {
   parse: {
     dateInput: 'MMM yyyy',
@@ -252,6 +256,7 @@ export class MonthFormComponent {
   private dashboardFacade = inject(DashboardFacade);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router); // Ci servirà per aggiornare l'URL dopo il salvataggio
+  private dialog = inject(MatDialog);
 
   // 🎯 ROUTER INPUTS: Angular inietta i parametri dell'URL direttamente qui!
   public propId = input.required<string>();
@@ -415,8 +420,14 @@ export class MonthFormComponent {
     const monthId = this.currentMonthId();
     if (!monthId) return;
 
-    // Conferma nativa del browser (opzionale ma consigliata per le eliminazioni)
-    if (!confirm('Sei sicuro di voler eliminare questa spesa?')) return;
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: { message: 'Sei sicuro di voler eliminare questa spesa?' },
+    });
+
+    const confirmed = await firstValueFrom(dialogRef.afterClosed()).catch(() => false);
+
+    if (!confirmed) return;
 
     this.isLoading.set(true);
     try {

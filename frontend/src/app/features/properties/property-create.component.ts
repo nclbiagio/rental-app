@@ -158,8 +158,16 @@ export class PropertyCreateComponent {
 
   public onDateChange(date: Date | null): void {
     if (date) {
-      const isoDate = date.toISOString().split('T')[0];
-      this.initialModel.update((m) => ({ ...m, startDate: isoDate }));
+      // 🚀 Estraiamo i valori LOCALI ignorando il fuso orario UTC
+      const year = date.getFullYear();
+      // getMonth() parte da 0 (Gennaio = 0), quindi aggiungiamo 1.
+      // padStart(2, '0') aggiunge lo zero davanti ai numeri da 1 a 9.
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+
+      const localIsoDate = `${year}-${month}-${day}`;
+
+      this.initialModel.update((m) => ({ ...m, startDate: localIsoDate }));
     } else {
       this.initialModel.update((m) => ({ ...m, startDate: '' }));
     }

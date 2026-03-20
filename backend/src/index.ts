@@ -12,7 +12,8 @@ export const startServer = async () => {
     // 🚀 LA PROTEZIONE PER LA PRODUZIONE
     if (env === "development") {
       console.log("🚧 Sincronizzazione schema DB (alter: true)...");
-      await sequelize.sync({ alter: true });
+      //await sequelize.sync({ alter: true });
+      await sequelize.sync();
     } else {
       console.log("🚀 Produzione: Sincronizzazione base (senza alter)...");
       // In prod crea solo le tabelle mancanti, ma NON tocca quelle esistenti.

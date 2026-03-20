@@ -12,6 +12,9 @@ import { CategoriesFacade } from '../../categories/categories.service';
 import type { ExpenseCategory } from '@app/shared/types/categories.contracts';
 import { CategoryDialogComponent } from '../../categories/components/category-dialog.component';
 
+import { firstValueFrom } from 'rxjs';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog.component';
+
 @Component({
   selector: 'app-property-categories-tab',
   standalone: true,
@@ -193,16 +196,25 @@ export class PropertyCategoriesTabComponent implements OnInit {
   }
 
   async deleteCategory(categoryId: string) {
-    if (confirm('Sei sicuro di voler eliminare questa categoria?')) {
-      try {
-        await this.facade.deleteCategory(this.propId(), categoryId);
-        this.snackBar.open('Categoria eliminata', 'OK', { duration: 3000 });
-        await this.loadData();
-      } catch (error) {
-        this.snackBar.open('Impossibile eliminare. Forse è usata in qualche spesa?', 'OK', {
-          duration: 4000,
-        });
-      }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '400px',
+      data: { message: 'Sei sicuro di voler eliminare questa categoria?' },
+    });
+
+    // 2. Aspettiamo la risposta
+    const confirmed = await firstValueFrom(dialogRef.afterClosed()).catch(() => false);
+
+    // 3. Se l'utente clicca Annulla, usciamo subito
+    if (!confirmed) return;
+
+    try {
+      await this.facade.deleteCategory(this.propId(), categoryId);
+      this.snackBar.open('Categoria eliminata', 'OK', { duration: 3000 });
+      await this.loadData();
+    } catch (error) {
+      this.snackBar.open('Impossibile eliminare. Forse è usata in qualche spesa?', 'OK', {
+        duration: 4000,
+      });
     }
   }
 }
