@@ -27,6 +27,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MonthExpensesComponent } from './components/month-expenses.component';
 
 import { CategoriesFacade } from '../categories/categories.service';
+import { DashboardFacade } from '../dashboard/dashboard.service';
 
 export const MY_NATIVE_FORMATS = {
   parse: {
@@ -142,13 +143,14 @@ export const MY_NATIVE_FORMATS = {
       } @else {
         <mat-card class="expenses-card">
           <mat-card-header class="expenses-header">
-            <div>
+            <mat-card-title-group>
               <mat-card-title>Spese del Mese</mat-card-title>
               <mat-card-subtitle>Gestisci le bollette e le spese extra</mat-card-subtitle>
-            </div>
-            <div class="net-result-badge">
-              Netto Reale: <strong>{{ netResult() | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
-            </div>
+              <div class="net-result-badge">
+                Netto Reale: &nbsp;
+                <strong>{{ netResult() | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
+              </div>
+            </mat-card-title-group>
           </mat-card-header>
 
           <app-month-expenses
@@ -222,14 +224,9 @@ export const MY_NATIVE_FORMATS = {
       }
 
       /* Stili per l'Header della Card Spese */
-      .expenses-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-      }
-
       .net-result-badge {
+        display: flex;
+        align-items: center;
         background-color: #e8f5e9;
         color: #2e7d32;
         padding: 8px 16px;
@@ -252,6 +249,7 @@ export const MY_NATIVE_FORMATS = {
 export class MonthFormComponent {
   private facade = inject(MonthsFacade);
   private categoriesFacade = inject(CategoriesFacade);
+  private dashboardFacade = inject(DashboardFacade);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router); // Ci servirà per aggiornare l'URL dopo il salvataggio
 
@@ -337,7 +335,7 @@ export class MonthFormComponent {
       } else {
         // POST: Crea
         const savedMonth = await this.facade.createMonth(this.propId(), payload);
-
+        this.dashboardFacade.refreshData();
         // 🚀 CAMBIO DI ROTTA STRATEGICO:
         // Sostituiamo l'URL /new con il nuovo /ID senza ricaricare la pagina.
         // Questo farà scattare l'input monthId(), che aggiornerà currentMonthId()

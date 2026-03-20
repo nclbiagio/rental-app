@@ -16,6 +16,7 @@ export const routes: Routes = [
       refreshData: () => {
         const facade = inject(DashboardFacade);
         if (!!facade.dashboardResource.value()) {
+          console.log('refreshing data');
           facade.refreshData();
         }
         return true;

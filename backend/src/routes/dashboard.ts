@@ -88,6 +88,7 @@ router.get("/", async (req: Request, res: Response, next) => {
         ytdNetResult,
         avgMonthly: months.length > 0 ? allNet / months.length : 0,
         missingMonths,
+        startDate: plain.startDate || null,
       };
     });
 

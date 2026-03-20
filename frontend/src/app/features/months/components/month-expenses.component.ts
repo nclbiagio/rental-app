@@ -45,12 +45,24 @@ import type { Expense, ExpensePayload, ExpenseCategory } from '@app/shared/types
       </mat-list>
     }
 
-    <div class="add-expense-container" style="margin-top: 16px; text-align: center;">
+    <div
+      class="add-expense-container"
+      style="margin-top: 16px; margin-bottom: 16px; text-align: center;"
+    >
       <button mat-stroked-button color="primary" (click)="openAddDialog()">
         <mat-icon>add</mat-icon> Aggiungi Spesa Extra
       </button>
     </div>
   `,
+  styles: [
+    `
+      .empty-expenses {
+        text-align: center;
+        padding: 20px;
+        color: #666;
+      }
+    `,
+  ],
 })
 export class MonthExpensesComponent {
   private dialog = inject(MatDialog);

@@ -41,18 +41,15 @@ import { DashboardFacade } from './dashboard.service';
           </div>
         } @else {
           <mat-card class="total-card">
-            <mat-card-header
-              style="display: flex; justify-content: space-between; align-items: center; width: 100%;"
-            >
-              <div>
+            <mat-card-header>
+              <mat-card-title-group>
                 <mat-card-title>Totale Portafoglio (YTD)</mat-card-title>
                 <mat-card-subtitle>Somma netta accantonata da inizio anno</mat-card-subtitle>
-              </div>
-
-              <button mat-flat-button color="primary" routerLink="/property/new">
-                <mat-icon>add</mat-icon>
-                Nuovo
-              </button>
+                <button mat-flat-button color="primary" routerLink="/property/new">
+                  <mat-icon>add</mat-icon>
+                  Nuovo
+                </button>
+              </mat-card-title-group>
             </mat-card-header>
             <mat-card-content>
               <div class="total-value">
@@ -65,7 +62,10 @@ import { DashboardFacade } from './dashboard.service';
             @for (prop of facade.properties(); track prop.propertyId) {
               <mat-card class="property-card">
                 <mat-card-header>
-                  <mat-card-title>{{ prop.propertyName }}</mat-card-title>
+                  <mat-card-title>
+                    {{ prop.propertyName }}
+                    <span style="font-size: 12px; color: #666">{{ prop.startDate }}</span>
+                  </mat-card-title>
                 </mat-card-header>
 
                 <mat-card-content>

@@ -31,4 +31,7 @@ export interface PropertyHealth {
    * la data di inizio dell'immobile fino ad oggi
    */
   missingMonths: MissingMonth[];
+
+  /** Data di inizio dell'immobile */
+  startDate: string | null;
 }
