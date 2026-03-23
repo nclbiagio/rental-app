@@ -165,6 +165,7 @@ import { environment } from '../../../environments/environment';
           font-weight: bold;
           color: #2c3e50;
           margin-top: 16px;
+          margin-bottom: 16px;
         }
       }
 

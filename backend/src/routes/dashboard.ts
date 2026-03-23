@@ -1,5 +1,24 @@
 import { Router, Request, Response } from "express";
 import { Property, MonthRecord, Expense } from "../models/index.js";
+import type { PropertyHealth } from "@app/shared/types/dashboard.contracts.js";
+
+interface PlainExpense {
+  amount: string | number;
+}
+
+interface PlainMonthRecord {
+  year: number;
+  month: number;
+  agencyNetIncome: string | number;
+  Expenses?: PlainExpense[];
+}
+
+interface PlainProperty {
+  id: string;
+  name: string;
+  startDate?: string | null;
+  MonthRecords?: PlainMonthRecord[];
+}
 
 const router = Router();
 
@@ -20,8 +39,8 @@ router.get("/", async (req: Request, res: Response, next) => {
     const currentYear = currentDate.getFullYear();
     const currentMonthNum = currentDate.getMonth() + 1; // 1-12
 
-    const result = properties.map((p: any) => {
-      const plain = p.get({ plain: true });
+    const result = properties.map((p: Property) => {
+      const plain = p.get({ plain: true }) as PlainProperty;
       const months = plain.MonthRecords || [];
 
       let allNet = 0;
@@ -38,10 +57,10 @@ router.get("/", async (req: Request, res: Response, next) => {
 
       const existingMonths = new Set<string>();
 
-      months.forEach((m: any) => {
-        const income = parseFloat(m.agencyNetIncome);
+      months.forEach((m: PlainMonthRecord) => {
+        const income = Number(m.agencyNetIncome);
         const exps = (m.Expenses || []).reduce(
-          (sum: number, e: any) => sum + parseFloat(e.amount),
+          (sum: number, e: PlainExpense) => sum + Number(e.amount),
           0,
         );
         const net = income - exps;
@@ -81,7 +100,7 @@ router.get("/", async (req: Request, res: Response, next) => {
         }
       }
 
-      return {
+      const propertyHealth: PropertyHealth = {
         propertyId: plain.id,
         propertyName: plain.name,
         lastMonthNetResult,
@@ -90,6 +109,8 @@ router.get("/", async (req: Request, res: Response, next) => {
         missingMonths,
         startDate: plain.startDate || null,
       };
+
+      return propertyHealth;
     });
 
     res.success(result);

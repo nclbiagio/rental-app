@@ -150,7 +150,7 @@ export const MY_NATIVE_FORMATS = {
             <mat-card-title-group>
               <mat-card-title>Spese del Mese</mat-card-title>
               <mat-card-subtitle>Gestisci le bollette e le spese extra</mat-card-subtitle>
-              <div class="net-result-badge">
+              <div class="net-result-badge" [class.negative]="netResult() < 0">
                 Netto Reale: &nbsp;
                 <strong>{{ netResult() | currency: 'EUR' : 'symbol' : '1.2-2' }}</strong>
               </div>
@@ -236,6 +236,16 @@ export const MY_NATIVE_FORMATS = {
         padding: 8px 16px;
         border-radius: 20px;
         font-size: 1.1rem;
+        /* Aggiunge un cambio colore fluido */
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* Stile per il risultato negativo */
+      .net-result-badge.negative {
+        background-color: #ffebee;
+        color: #c62828;
       }
 
       .add-expense-container {

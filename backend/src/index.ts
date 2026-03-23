@@ -11,7 +11,7 @@ export const startServer = async () => {
 
     // 🚀 LA PROTEZIONE PER LA PRODUZIONE
     if (env === "development") {
-      console.log("🚧 Sincronizzazione schema DB (alter: true)...");
+      console.log("🚧 Sincronizzazione schema DB Development");
       //await sequelize.sync({ alter: true });
       await sequelize.sync();
     } else {
