@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CurrencyPipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
@@ -32,6 +32,7 @@ import { DashboardFacade } from '../dashboard/dashboard.service';
 import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
+import { ErrorService } from '../../core/services/error.service';
 
 export const MY_NATIVE_FORMATS = {
   parse: {
@@ -116,17 +117,25 @@ export const MY_NATIVE_FORMATS = {
               <textarea matInput rows="3" [formField]="monthForm.notes"></textarea>
             </mat-form-field>
 
+            @if (errorMessage()) {
+              <div class="local-error-box">
+                <mat-icon color="warn">error_outline</mat-icon>
+                <span class="error-text">{{ errorMessage() }}</span>
+              </div>
+            }
+
             <div class="form-actions">
-              @if (isLoading()) {
-                <mat-spinner diameter="30"></mat-spinner>
-              }
               <button
                 mat-flat-button
                 color="primary"
                 type="submit"
                 [disabled]="!monthForm().valid() || isLoading()"
               >
-                {{ currentMonthId() ? 'Aggiorna Dati Mese' : 'Salva e Procedi' }}
+                @if (isLoading()) {
+                  <mat-spinner diameter="30"></mat-spinner>
+                } @else {
+                  {{ currentMonthId() ? 'Aggiorna Dati Mese' : 'Salva e Procedi' }}
+                }
               </button>
             </div>
           </form>
@@ -253,6 +262,19 @@ export const MY_NATIVE_FORMATS = {
         display: flex;
         justify-content: center;
       }
+
+      .local-error-box {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background-color: #ffebee;
+        color: #c62828;
+        border-left: 4px solid #f44336;
+        border-radius: 4px;
+        font-weight: 500;
+        margin-top: 8px;
+      }
     `,
   ],
   providers: [
@@ -267,6 +289,7 @@ export class MonthFormComponent {
   private snackBar = inject(MatSnackBar);
   private router = inject(Router); // Ci servirà per aggiornare l'URL dopo il salvataggio
   private dialog = inject(MatDialog);
+  private errorService = inject(ErrorService);
 
   // 🎯 ROUTER INPUTS: Angular inietta i parametri dell'URL direttamente qui!
   public propId = input.required<string>();
@@ -294,6 +317,9 @@ export class MonthFormComponent {
     min(path.agencyNetIncome, 0, { message: "L'importo non può essere negativo" });
   });
 
+  // 🚀 Signal per contenere il messaggio d'errore tradotto
+  public errorMessage = signal<string | null>(null);
+
   public netResult = computed(() => {
     const income = Number(this.initialModel().agencyNetIncome) || 0;
     const totalExpenses = this.expenses().reduce((sum, exp) => sum + Number(exp.amount), 0);
@@ -301,7 +327,7 @@ export class MonthFormComponent {
   });
 
   constructor() {
-    // 🎯 REATTIVITÀ PURA: Niente più ngOnInit.
+    // 🎯 EFFETTO 1: Gestione Caricamento Dati
     // Questo effect osserva i parametri dell'URL. Se navighi o se la pagina si carica,
     // e l'ID non è 'new', scarica i dati automaticamente.
     effect(() => {
@@ -316,6 +342,26 @@ export class MonthFormComponent {
       if (mId && mId !== 'new') {
         this.loadExistingMonth(pId, mId);
       }
+    });
+
+    // 🎯 EFFETTO 2: UX Pulizia Errori
+    // Questo effect osserva ESCLUSIVAMENTE i cambiamenti del form.
+    // Se l'utente tocca un input e c'era un errore a schermo, lo nasconde.
+    effect(() => {
+      // Diciamo ad Angular di "ascoltare" il signal del modello.
+      // (Se la tua libreria aggiorna direttamente il valore del form,
+      // potresti dover ascoltare this.monthForm().value al posto di initialModel())
+      this.initialModel();
+
+      // 🛡️ UNTRACKED: Leggiamo l'errore senza farlo diventare una dipendenza.
+      // Se non usassimo untracked, l'effetto scatterebbe da solo nel momento esatto
+      // in cui il metodo di salvataggio imposta l'errore, auto-cancellando il banner
+      // rosso all'istante prima ancora che l'utente riesca a leggerlo!
+      untracked(() => {
+        if (this.errorMessage()) {
+          this.errorMessage.set(null);
+        }
+      });
     });
   }
 
@@ -332,6 +378,7 @@ export class MonthFormComponent {
     event?.preventDefault();
     if (!this.monthForm().valid()) return;
 
+    this.errorMessage.set(null);
     this.isLoading.set(true);
 
     const formVal = this.initialModel();
@@ -366,8 +413,10 @@ export class MonthFormComponent {
           duration: 4000,
         });
       }
-    } catch (error) {
-      this.snackBar.open('Errore durante il salvataggio', 'Chiudi', { duration: 3000 });
+    } catch (error: any) {
+      // 🚀 Cattura l'errore e usa il dizionario per tradurlo
+      const translatedMsg = this.errorService.handleHttpError(error);
+      this.errorMessage.set(translatedMsg);
     } finally {
       this.isLoading.set(false);
     }

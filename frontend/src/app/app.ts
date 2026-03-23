@@ -16,6 +16,7 @@ import { MatDividerModule } from '@angular/material/divider';
 // Il nostro servizio e l'environment
 import { DashboardFacade } from './features/dashboard/dashboard.service';
 import { environment } from '../environments/environment';
+import { GlobalErrorBannerComponent } from './core/components/global-error-banner.component';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,7 @@ import { environment } from '../environments/environment';
     MatButtonModule,
     MatBadgeModule,
     MatDividerModule,
+    GlobalErrorBannerComponent,
   ],
   templateUrl: './app.html',
   styleUrls: ['./app.css'], // Opzionale, per stili extra
