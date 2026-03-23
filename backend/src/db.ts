@@ -12,18 +12,22 @@ if (dialect === "postgres") {
     dialect: "postgres",
     logging: false,
   });
-} else if (process.env.NODE_ENV === "vitest") {
+} else if (env === "vitest") {
   sequelize = new Sequelize({
     dialect: "sqlite",
     storage: ":memory:",
     logging: false,
   });
 } else {
-  // 🚀 SEPARAZIONE DEV E PROD PER SQLITE
-  const dbPath =
-    env === "production" ? "./prod-database.sqlite" : "./dev-database.sqlite";
+  // 🚀 SEPARAZIONE DEV, PROD E TEST PER SQLITE
+  let dbPath = "./dev-database.sqlite"; // Default per lo sviluppo
 
-  // Default to SQLite file in dev
+  if (env === "production") {
+    dbPath = "./prod-database.sqlite";
+  } else if (env === "test") {
+    dbPath = "./test-database.sqlite";
+  }
+
   sequelize = new Sequelize({
     dialect: "sqlite",
     storage: dbPath,

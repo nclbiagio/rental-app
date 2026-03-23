@@ -137,14 +137,14 @@ router.post(
       const { propId } = req.params;
       const { year, month, agencyNetIncome, notes } = req.body;
 
-      console.log("📍 1. Inizio API. Cerco duplicati...");
+      //console.log("📍 1. Inizio API. Cerco duplicati...");
 
       const existing = await MonthRecord.findOne({
         where: { propertyId: propId, year, month },
       });
 
       if (existing) {
-        console.log("📍 1b. Trovato duplicato! Esco.");
+        //console.log("📍 1b. Trovato duplicato! Esco.");
         return res.status(409).json({
           success: false,
           error: {
@@ -154,7 +154,7 @@ router.post(
         });
       }
 
-      console.log("📍 2. Nessun duplicato. Tento di creare il nuovo Mese...");
+      //console.log("📍 2. Nessun duplicato. Tento di creare il nuovo Mese...");
 
       const newMonth = await MonthRecord.create({
         propertyId: propId as string,
@@ -164,8 +164,8 @@ router.post(
         notes,
       });
 
-      console.log("📍 3. Mese creato con successo! ID:", newMonth.id);
-      console.log("📍 4. Cerco le categorie di spese ricorrenti...");
+      //console.log("📍 3. Mese creato con successo! ID:", newMonth.id);
+      //console.log("📍 4. Cerco le categorie di spese ricorrenti...");
 
       // Generate recurring expenses
       const recurringCategories = await ExpenseCategory.findAll({
@@ -173,9 +173,9 @@ router.post(
       });
 
       if (recurringCategories.length > 0) {
-        console.log(
+        /* console.log(
           `📍 5. Trovate ${recurringCategories.length} spese ricorrenti. Le preparo...`,
-        );
+        ); */
         const expensesToCreate = recurringCategories
           .filter(
             (c) =>
@@ -189,22 +189,22 @@ router.post(
           }));
 
         if (expensesToCreate.length > 0) {
-          console.log("📍 6. Tento il bulkCreate delle spese...");
+          //console.log("📍 6. Tento il bulkCreate delle spese...");
           await Expense.bulkCreate(expensesToCreate);
-          console.log("📍 7. bulkCreate terminato con successo!");
+          //console.log("📍 7. bulkCreate terminato con successo!");
         }
       }
 
-      console.log("📍 8. Ricarico il mese completo per inviarlo al FE...");
+      //console.log("📍 8. Ricarico il mese completo per inviarlo al FE...");
       const monthWithData = await MonthRecord.findByPk(newMonth.id, {
         include: [{ model: Expense, include: [ExpenseCategory] }],
       });
 
-      console.log("📍 9. Tutto finito! Rispondo 200 OK.");
+      //console.log("📍 9. Tutto finito! Rispondo 200 OK.");
       res.success(monthWithData);
     } catch (error) {
-      console.error("🚨 CRASH TOTALE NEL CATCH! Ecco cosa è successo:");
-      console.error(error);
+      //console.error("🚨 CRASH TOTALE NEL CATCH! Ecco cosa è successo:");
+      //console.error(error);
       next(error);
     }
   },

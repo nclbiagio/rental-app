@@ -71,9 +71,25 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: 'npm run start',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  // },
+  /* webServer: [
+    {
+      // Comando per avviare il backend (adattalo se usi un comando diverso)
+      command: "npm run dev --prefix backend",
+      cwd: "../",
+      url: "http://localhost:3000", // Sostituisci con una porta/rotta del tuo backend
+      reuseExistingServer: !process.env.CI, // Se il server è già acceso, non lo riavvia
+      // 🚀 ECCO LA MAGIA: Diciamo al backend che siamo in modalità TEST
+      env: {
+        NODE_ENV: "test",
+      },
+    },
+    {
+      // Comando per avviare Angular
+      command: "npm run start --prefix frontend",
+      cwd: "../",
+      url: "http://localhost:4200",
+      reuseExistingServer: !process.env.CI,
+      timeout: 120 * 1000,
+    },
+  ], */
 });
