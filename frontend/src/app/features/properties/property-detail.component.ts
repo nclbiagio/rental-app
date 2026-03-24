@@ -34,7 +34,7 @@ import { PropertyCategoriesTabComponent } from './components/property-categories
     <div class="page-container">
       <header class="page-header">
         <button mat-icon-button routerLink="/dashboard"><mat-icon>arrow_back</mat-icon></button>
-        <h1>Dettaglio Immobile</h1>
+        <h1 style="margin: 0;">Dettaglio Immobile</h1>
         <span class="spacer"></span>
         <button
           mat-flat-button

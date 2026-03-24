@@ -33,6 +33,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog.component';
 import { ErrorService } from '../../core/services/error.service';
+import { NavigationHistoryService } from '../../shared/services/navigation-history.service';
 
 export const MY_NATIVE_FORMATS = {
   parse: {
@@ -67,10 +68,10 @@ export const MY_NATIVE_FORMATS = {
   ],
   template: ` <div class="page-container">
     <header class="page-header">
-      <button mat-icon-button routerLink="/dashboard">
+      <button mat-icon-button (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>
+      <h1 style="margin: 0;">
         {{ currentMonthId() ? 'Modifica Mese' : 'Nuovo Mese' }}
       </h1>
     </header>
@@ -290,6 +291,7 @@ export class MonthFormComponent {
   private router = inject(Router); // Ci servirà per aggiornare l'URL dopo il salvataggio
   private dialog = inject(MatDialog);
   private errorService = inject(ErrorService);
+  private navigationHistoryService = inject(NavigationHistoryService);
 
   // 🎯 ROUTER INPUTS: Angular inietta i parametri dell'URL direttamente qui!
   public propId = input.required<string>();
@@ -363,6 +365,10 @@ export class MonthFormComponent {
         }
       });
     });
+  }
+
+  public goBack() {
+    this.navigationHistoryService.goBack();
   }
 
   public setMonthAndYear(normalizedMonthAndYear: Date, datepicker: any) {
