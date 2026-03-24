@@ -463,4 +463,74 @@ router.get("/:propId/stats", async (req: Request, res: Response, next) => {
   }
 });
 
+// GET /api/properties/:propId/history
+router.get("/:propId/history", async (req: Request, res: Response, next) => {
+  try {
+    const { propId } = req.params;
+
+    // 1. Peschiamo tutti i mesi dell'immobile con le relative spese
+    const months = await MonthRecord.findAll({
+      where: { propertyId: propId },
+      include: [{ model: Expense }], // Non ci serve la Categoria qui, risparmiamo memoria!
+    });
+
+    if (months.length === 0) {
+      return res.success([]); // Nessun dato, ritorniamo array vuoto
+    }
+
+    const currentYear = new Date().getFullYear();
+
+    // Mappa per raggruppare i dati per anno
+    // Es: { 2025: { year: 2025, totalIncome: ..., totalExpenses: ..., netIncome: ... } }
+    const historyMap: Record<number, any> = {};
+
+    // 2. Aggreghiamo i dati
+    months.forEach((m) => {
+      const plain = m.get({ plain: true });
+      const year = plain.year;
+
+      // 🚀 SCELTA ARCHITETTURALE: Escludiamo l'anno in corso (YTD)
+      // Se vuoi mostrare ANCHE il 2026 nello storico, rimuovi questo blocco if!
+      if (year === currentYear) {
+        return;
+      }
+
+      const income = parseFloat(plain.agencyNetIncome as any) || 0;
+
+      // Calcoliamo il totale delle spese per questo mese
+      let expTotal = 0;
+      (plain as any).Expenses?.forEach((exp: any) => {
+        expTotal += parseFloat(exp.amount || 0);
+      });
+
+      const net = income - expTotal;
+
+      // Se l'anno non esiste ancora nella mappa, lo inizializziamo
+      if (!historyMap[year]) {
+        historyMap[year] = {
+          year: year,
+          totalIncome: 0,
+          totalExpenses: 0,
+          netIncome: 0,
+        };
+      }
+
+      // Sommiamo i valori del mese al totale dell'anno
+      historyMap[year].totalIncome += income;
+      historyMap[year].totalExpenses += expTotal;
+      historyMap[year].netIncome += net;
+    });
+
+    // 3. Trasformiamo la mappa in un array ordinato dal più recente al più vecchio
+    const historyArray = Object.values(historyMap).sort(
+      (a, b) => b.year - a.year,
+    );
+
+    // Usiamo il tuo formato di risposta custom
+    res.success(historyArray);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

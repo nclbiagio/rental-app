@@ -1,9 +1,15 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, httpResource } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-
+import { signal } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import type { ApiResponse, Property, PropertyPayload, PropertyStats } from '@app/shared/types';
+import type {
+  ApiResponse,
+  Property,
+  PropertyPayload,
+  PropertyStats,
+  YearlyHistoryRecord,
+} from '@app/shared/types';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +17,9 @@ import type { ApiResponse, Property, PropertyPayload, PropertyStats } from '@app
 export class PropertiesFacade {
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/properties`;
+
+  // 1. Un Signal interno che dice al Facade quale immobile stiamo guardando ora
+  public currentHistoryPropId = signal<string | null>(null);
 
   /**
    * CREATE - POST /api/properties
@@ -71,5 +80,22 @@ export class PropertiesFacade {
     return httpResource<ApiResponse<PropertyStats>>(
       () => `${this.baseUrl}/${propIdSignal()}/stats`,
     );
+  }
+
+  // Un SINGOLO httpResource che vive per sempre nel Facade.
+  // Reagisce automaticamente ogni volta che cambia `currentHistoryPropId`
+  public yearlyHistoryResource = httpResource<ApiResponse<YearlyHistoryRecord[]>>(() => {
+    const id = this.currentHistoryPropId();
+    // Se l'ID è null, httpResource sa che NON deve fare la chiamata HTTP
+    if (!id) return undefined;
+
+    // Se l'ID c'è, genera l'URL e fa la chiamata (se l'URL è identico a prima, non la rifà!)
+    return `${this.baseUrl}/${id}/history`;
+  });
+
+  // 3. Metodo per invalidare la cache (es. se aggiungi un nuovo mese)
+  public invalidateHistoryCache(): void {
+    // Il resource di Angular 21 ha il metodo reload() nativo!
+    this.yearlyHistoryResource.reload();
   }
 }

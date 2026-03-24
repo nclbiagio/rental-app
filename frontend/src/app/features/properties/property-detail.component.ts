@@ -14,6 +14,7 @@ import { PropertySummaryTabComponent } from './components/property-summary-tab.c
 import { PropertyHistoryTabComponent } from './components/property-history-tab.component';
 import { PropertyExpensesTabComponent } from './components/property-expenses-tab.component';
 import { PropertyCategoriesTabComponent } from './components/property-categories-tab.component';
+import { HistoryYearTabComponent } from './components/property-history-year-tab.component';
 
 @Component({
   selector: 'app-property-detail',
@@ -29,6 +30,7 @@ import { PropertyCategoriesTabComponent } from './components/property-categories
     PropertyHistoryTabComponent,
     PropertyExpensesTabComponent,
     PropertyCategoriesTabComponent,
+    HistoryYearTabComponent,
   ],
   template: `
     <div class="page-container">
@@ -71,6 +73,12 @@ import { PropertyCategoriesTabComponent } from './components/property-categories
                 [propId]="propId()"
               >
               </app-property-history-tab>
+            </div>
+          </mat-tab>
+
+          <mat-tab label="Storico Annuale">
+            <div class="tab-content">
+              <app-history-year-tab [propId]="propId()"></app-history-year-tab>
             </div>
           </mat-tab>
 

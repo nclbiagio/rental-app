@@ -38,3 +38,10 @@ export interface MonthRecord extends MonthPayload {
   netResult?: number;
   avgDeviation?: number;
 }
+
+export interface YearlyHistoryRecord {
+  year: number;
+  totalIncome: number;
+  totalExpenses: number;
+  netIncome: number;
+}
